@@ -124,71 +124,20 @@
       border: 1px solid var(--border-color);
     }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* Stop All Button */
-    .btn-stop-all {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--accent-red);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius-md);
-      padding: 8px 14px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
-      transition: var(--transition-smooth);
-    }
-
-    .btn-stop-all:hover {
-      background: var(--accent-red-hover);
-      transform: translateY(-1px);
-    }
-
-    .btn-stop-all:active {
-      transform: scale(0.96);
-    }
-
-    .btn-stop-all:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .btn-stop-all svg {
-      width: 16px;
-      height: 16px;
-      fill: currentColor;
-    }
-
-    /* Toolbar for Search & Options */
-    .controls-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    /* Search Bar */
     .search-wrapper {
       position: relative;
-      flex: 1;
+      width: 100%;
     }
 
     .search-input {
       width: 100%;
-      height: 38px;
+      height: 42px;
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 0 12px 0 36px;
-      font-size: 0.875rem;
+      padding: 0 14px 0 38px;
+      font-size: 0.9rem;
       color: var(--text-main);
       outline: none;
       transition: var(--transition-smooth);
@@ -201,41 +150,13 @@
 
     .search-icon {
       position: absolute;
-      left: 11px;
+      left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       color: var(--text-dim);
       pointer-events: none;
-    }
-
-    .mode-toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      height: 38px;
-      padding: 0 12px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition-smooth);
-      white-space: nowrap;
-    }
-
-    .mode-toggle:hover {
-      color: var(--text-main);
-      border-color: var(--border-active);
-    }
-
-    .mode-toggle.active {
-      background: rgba(59, 130, 246, 0.15);
-      border-color: rgba(59, 130, 246, 0.4);
-      color: #93c5fd;
     }
 
     /* Main Container */
@@ -494,59 +415,7 @@
       font-size: 0.9rem;
     }
 
-    /* Instructions & Footer */
-    footer {
-      margin-top: auto;
-      max-width: 900px;
-      width: 100%;
-      margin-left: auto;
-      margin-right: auto;
-      padding: 24px 16px 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.8rem;
-      color: var(--text-dim);
-      border-top: 1px solid var(--border-color);
-    }
 
-    .footer-links {
-      display: flex;
-      gap: 16px;
-    }
-
-    .footer-links a {
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.15s;
-    }
-
-    .footer-links a:hover {
-      color: var(--text-main);
-    }
-
-    /* Add Sound Modal / Drawer */
-    .info-box {
-      width: 100%;
-      max-width: 600px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 12px 16px;
-      margin-top: 8px;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-
-    .info-box code {
-      font-family: ui-monospace, SFMono-Regular, monospace;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 1px 4px;
-      border-radius: 4px;
-      color: #93c5fd;
-    }
   </style>
 </head>
 <body>
@@ -569,30 +438,15 @@
             </div>
           </div>
         </div>
-
-        <div class="header-actions">
-          <button id="btn-stop-all" class="btn-stop-all" disabled title="Stop all audio (Spacebar)">
-            <svg viewBox="0 0 24 24">
-              <rect x="5" y="5" width="14" height="14" rx="2"></rect>
-            </svg>
-            <span>Stop All</span>
-          </button>
-        </div>
       </div>
 
-      <!-- Controls: Search & Mode -->
-      <div class="controls-bar">
-        <div class="search-wrapper">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input type="text" id="search-input" class="search-input" placeholder="Search sounds... (Press '/' to focus)" autocomplete="off">
-        </div>
-
-        <button id="mode-toggle" class="mode-toggle" title="Toggle between Solo mode (one sound at a time) and Overlap mode (play multiple sounds together)">
-          <span>Mode:</span> <strong id="mode-label">Solo</strong>
-        </button>
+      <!-- Search Bar -->
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-input" class="search-input" placeholder="Search sounds... (Press '/' to focus)" autocomplete="off">
       </div>
     </div>
   </header>
@@ -603,25 +457,6 @@
       <!-- Cards dynamically rendered by JavaScript -->
     </div>
   </main>
-
-  <!-- Footer -->
-  <footer>
-    <div class="footer-links">
-      <a href="https://github.com/mbialas/soundboard" target="_blank" rel="noopener">GitHub Repository</a>
-      <span>•</span>
-      <a href="javascript:void(0)" id="toggle-info">How to add sounds</a>
-    </div>
-
-    <div id="info-drawer" class="info-box" style="display: none;">
-      <strong>To add new sound clips:</strong>
-      <ol style="margin-left: 18px; margin-top: 4px;">
-        <li>Place your <code>.m4a</code>, <code>.mp3</code>, or <code>.wav</code> audio file in the repository.</li>
-        <li>Open <code>index.html</code> and add a new entry to the <code>SOUNDS</code> array in the script.</li>
-        <li>Commit and push to GitHub — GitHub Pages updates automatically!</li>
-      </ol>
-    </div>
-    <div>Mobile-friendly • Plays on touch • Offline capable</div>
-  </footer>
 
   <script>
     /**
@@ -646,12 +481,52 @@
         duration: "1.9s"
       },
       {
+        id: "karaoke",
+        title: "Karaoke",
+        file: "Karaoke.m4a",
+        icon: "🎤",
+        color: "teal",
+        duration: "3.3s"
+      },
+      {
+        id: "laughing",
+        title: "Laughing",
+        file: "Laughing.m4a",
+        icon: "😂",
+        color: "amber",
+        duration: "5.5s"
+      },
+      {
+        id: "love-you",
+        title: "Love You",
+        file: "Love You.m4a",
+        icon: "❤️",
+        color: "rose",
+        duration: "2.6s"
+      },
+      {
         id: "mummy-sleeping",
         title: "Mummy Sleeping",
         file: "Mummy Sleeping.m4a",
         icon: "😴",
         color: "purple",
         duration: "2.9s"
+      },
+      {
+        id: "okay",
+        title: "Okay",
+        file: "Okay.m4a",
+        icon: "👌",
+        color: "blue",
+        duration: "1.5s"
+      },
+      {
+        id: "wolf-howl",
+        title: "Wolf Howl",
+        file: "Wolf Howl.m4a",
+        icon: "🐺",
+        color: "indigo",
+        duration: "4.4s"
       }
     ];
 
@@ -662,7 +537,6 @@
      */
     const state = {
       sounds: SOUNDS,
-      overlapMode: false, // false = Solo (stops others), true = Overlap
       audioInstances: new Map(), // soundId -> HTMLAudioElement
       loopingSounds: new Set(),  // set of soundIds set to loop
       searchQuery: ""
@@ -671,12 +545,7 @@
     // DOM Elements
     const grid = document.getElementById("soundboard-grid");
     const searchInput = document.getElementById("search-input");
-    const modeToggle = document.getElementById("mode-toggle");
-    const modeLabel = document.getElementById("mode-label");
-    const btnStopAll = document.getElementById("btn-stop-all");
     const soundCountBadge = document.getElementById("sound-count-badge");
-    const toggleInfo = document.getElementById("toggle-info");
-    const infoDrawer = document.getElementById("info-drawer");
 
     /**
      * Preload and prepare audio instance for a sound
@@ -713,7 +582,6 @@
           if (!state.loopingSounds.has(sound.id)) {
             setCardPlayingState(sound.id, false);
           }
-          updateStopAllButtonState();
         });
 
         // Playback error handling
@@ -741,10 +609,8 @@
         return;
       }
 
-      // If in Solo Mode, stop all other playing sounds first
-      if (!state.overlapMode) {
-        stopAllSounds();
-      }
+      // Stop any other currently playing sounds (solo playback)
+      stopAllSounds();
 
       // Configure loop state
       audio.loop = state.loopingSounds.has(sound.id);
@@ -756,7 +622,6 @@
         playPromise
           .then(() => {
             setCardPlayingState(sound.id, true);
-            updateStopAllButtonState();
           })
           .catch((err) => {
             console.warn("Audio play prevented or interrupted:", err);
@@ -775,7 +640,6 @@
         audio.currentTime = 0;
       }
       setCardPlayingState(soundId, false);
-      updateStopAllButtonState();
     }
 
     /**
@@ -787,7 +651,6 @@
         audio.currentTime = 0;
         setCardPlayingState(id, false);
       });
-      updateStopAllButtonState();
     }
 
     /**
@@ -829,18 +692,7 @@
       }
     }
 
-    /**
-     * Update state of master "Stop All" button
-     */
-    function updateStopAllButtonState() {
-      let isAnyPlaying = false;
-      state.audioInstances.forEach((audio) => {
-        if (!audio.paused && audio.currentTime > 0) {
-          isAnyPlaying = true;
-        }
-      });
-      btnStopAll.disabled = !isAnyPlaying;
-    }
+
 
     /**
      * Render the sound cards
@@ -955,26 +807,12 @@
       }[m]));
     }
 
-    // Toggle Playback Mode (Solo vs Overlap)
-    modeToggle.addEventListener("click", () => {
-      state.overlapMode = !state.overlapMode;
-      modeLabel.textContent = state.overlapMode ? "Overlap" : "Solo";
-      modeToggle.classList.toggle("active", state.overlapMode);
-    });
 
-    // Master Stop All
-    btnStopAll.addEventListener("click", stopAllSounds);
 
     // Instant Search
     searchInput.addEventListener("input", (e) => {
       state.searchQuery = e.target.value;
       renderCards();
-    });
-
-    // Toggle Info Drawer
-    toggleInfo.addEventListener("click", () => {
-      const isHidden = infoDrawer.style.display === "none";
-      infoDrawer.style.display = isHidden ? "block" : "none";
     });
 
     // Keyboard Shortcuts (Desktop / Tablets)
