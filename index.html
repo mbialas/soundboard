@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Soundboard</title>
+  <meta name="description" content="A mobile-friendly, instant audio clip soundboard.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0b0f19">
+
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #131b2e;
+      --bg-card: #1a233b;
+      --bg-card-hover: #222d4a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(255, 255, 255, 0.25);
+      --accent-red: #ef4444;
+      --accent-red-hover: #dc2626;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-amber: #f59e0b;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-card: 0 4px 16px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
+      --shadow-pressed: 0 1px 4px rgba(0, 0, 0, 0.5);
+      --transition-smooth: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+      touch-action: manipulation;
+    }
+
+    /* Header & Navigation */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(11, 15, 25, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 16px;
+    }
+
+    .header-content {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+    }
+
+    .brand-icon svg {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      padding: 3px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Stop All Button */
+    .btn-stop-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-red);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+      transition: var(--transition-smooth);
+    }
+
+    .btn-stop-all:hover {
+      background: var(--accent-red-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-stop-all:active {
+      transform: scale(0.96);
+    }
+
+    .btn-stop-all:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-stop-all svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* Toolbar for Search & Options */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 38px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0 12px 0 36px;
+      font-size: 0.875rem;
+      color: var(--text-main);
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    .mode-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 38px;
+      padding: 0 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      white-space: nowrap;
+    }
+
+    .mode-toggle:hover {
+      color: var(--text-main);
+      border-color: var(--border-active);
+    }
+
+    .mode-toggle.active {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: rgba(59, 130, 246, 0.4);
+      color: #93c5fd;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Soundboard Grid */
+    .soundboard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    @media (min-width: 640px) {
+      .soundboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+    }
+
+    @media (min-width: 860px) {
+      .soundboard-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+      }
+    }
+
+    /* Sound Card */
+    .sound-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 16px 14px 18px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+      min-height: 130px;
+      box-shadow: var(--shadow-card);
+      transition: var(--transition-smooth);
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    .sound-card:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+      border-color: var(--border-active);
+    }
+
+    .sound-card:active {
+      transform: scale(0.96) translateY(2px);
+      box-shadow: var(--shadow-pressed);
+    }
+
+    /* Color themes for cards */
+    .sound-card[data-color="orange"] {
+      --card-accent: #f97316;
+      --card-gradient: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(249, 115, 22, 0.04));
+    }
+
+    .sound-card[data-color="purple"] {
+      --card-accent: #a855f7;
+      --card-gradient: linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(168, 85, 247, 0.04));
+    }
+
+    .sound-card[data-color="teal"] {
+      --card-accent: #14b8a6;
+      --card-gradient: linear-gradient(135deg, rgba(20, 184, 166, 0.18), rgba(20, 184, 166, 0.04));
+    }
+
+    .sound-card[data-color="blue"] {
+      --card-accent: #3b82f6;
+      --card-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(59, 130, 246, 0.04));
+    }
+
+    .sound-card[data-color="rose"] {
+      --card-accent: #f43f5e;
+      --card-gradient: linear-gradient(135deg, rgba(244, 63, 94, 0.18), rgba(244, 63, 94, 0.04));
+    }
+
+    .sound-card {
+      background: var(--card-gradient, var(--bg-card));
+    }
+
+    /* Playing State */
+    .sound-card.is-playing {
+      border-color: var(--card-accent, #60a5fa);
+      box-shadow: 0 0 20px rgba(96, 165, 250, 0.35), var(--shadow-card);
+      background: var(--bg-card-hover);
+    }
+
+    /* Card Icon */
+    .card-icon-wrapper {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      margin-bottom: 2px;
+      transition: var(--transition-smooth);
+    }
+
+    .sound-card.is-playing .card-icon-wrapper {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Animated Sound Wave Indicator */
+    .sound-waves {
+      display: none;
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      align-items: flex-end;
+      gap: 2px;
+      height: 14px;
+    }
+
+    .sound-card.is-playing .sound-waves {
+      display: flex;
+    }
+
+    .wave-bar {
+      width: 3px;
+      background: var(--card-accent, #60a5fa);
+      border-radius: 2px;
+      animation: wavePulse 0.8s ease-in-out infinite alternate;
+    }
+
+    .wave-bar:nth-child(1) { height: 6px; animation-delay: 0.1s; }
+    .wave-bar:nth-child(2) { height: 14px; animation-delay: 0.3s; }
+    .wave-bar:nth-child(3) { height: 8px; animation-delay: 0.2s; }
+
+    @keyframes wavePulse {
+      0% { height: 4px; }
+      100% { height: 14px; }
+    }
+
+    /* Card Details */
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .duration-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .shortcut-badge {
+      display: none;
+      font-family: ui-monospace, monospace;
+      font-size: 0.68rem;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-dim);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    @media (min-width: 768px) {
+      .shortcut-badge {
+        display: inline-block;
+      }
+    }
+
+    /* Progress bar */
+    .card-progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: var(--card-accent, #60a5fa);
+      transition: width 0.05s linear;
+    }
+
+    /* Loop indicator */
+    .btn-card-loop {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      padding: 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-card-loop:hover {
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-card-loop.is-looping {
+      color: var(--card-accent, #60a5fa);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-card-loop svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      grid-column: 1 / -1;
+    }
+
+    .empty-state p {
+      margin-top: 8px;
+      font-size: 0.9rem;
+    }
+
+    /* Instructions & Footer */
+    footer {
+      margin-top: auto;
+      max-width: 900px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 24px 16px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-main);
+    }
+
+    /* Add Sound Modal / Drawer */
+    .info-box {
+      width: 100%;
+      max-width: 600px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .info-box code {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1px 4px;
+      border-radius: 4px;
+      color: #93c5fd;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="header-content">
+      <div class="top-bar">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+          </div>
+          <div>
+            <div style="display:flex; align-items:center; gap: 8px;">
+              <h1 class="brand-title">Soundboard</h1>
+              <span id="sound-count-badge" class="brand-badge">2 sounds</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-stop-all" class="btn-stop-all" disabled title="Stop all audio (Spacebar)">
+            <svg viewBox="0 0 24 24">
+              <rect x="5" y="5" width="14" height="14" rx="2"></rect>
+            </svg>
+            <span>Stop All</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Controls: Search & Mode -->
+      <div class="controls-bar">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" class="search-input" placeholder="Search sounds... (Press '/' to focus)" autocomplete="off">
+        </div>
+
+        <button id="mode-toggle" class="mode-toggle" title="Toggle between Solo mode (one sound at a time) and Overlap mode (play multiple sounds together)">
+          <span>Mode:</span> <strong id="mode-label">Solo</strong>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sound Cards Grid -->
+  <main>
+    <div id="soundboard-grid" class="soundboard-grid">
+      <!-- Cards dynamically rendered by JavaScript -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="https://github.com/mbialas/soundboard" target="_blank" rel="noopener">GitHub Repository</a>
+      <span>•</span>
+      <a href="javascript:void(0)" id="toggle-info">How to add sounds</a>
+    </div>
+
+    <div id="info-drawer" class="info-box" style="display: none;">
+      <strong>To add new sound clips:</strong>
+      <ol style="margin-left: 18px; margin-top: 4px;">
+        <li>Place your <code>.m4a</code>, <code>.mp3</code>, or <code>.wav</code> audio file in the repository.</li>
+        <li>Open <code>index.html</code> and add a new entry to the <code>SOUNDS</code> array in the script.</li>
+        <li>Commit and push to GitHub — GitHub Pages updates automatically!</li>
+      </ol>
+    </div>
+    <div>Mobile-friendly • Plays on touch • Offline capable</div>
+  </footer>
+
+  <script>
+    /**
+     * =========================================================================
+     * SOUND REGISTRY
+     * =========================================================================
+     * Add or edit sounds in this array.
+     * - id: Unique string identifier
+     * - title: Display name on the card
+     * - file: Relative path or filename in the repo (spaces are handled automatically)
+     * - icon: Emoji or symbol representing the sound
+     * - color: Card accent theme ('orange', 'purple', 'teal', 'blue', 'rose')
+     * - duration: Optional fallback duration text (e.g., '1.9s')
+     */
+    const SOUNDS = [
+      {
+        id: "henry-awake",
+        title: "Henry Awake",
+        file: "Henry Awake.m4a",
+        icon: "☀️",
+        color: "orange",
+        duration: "1.9s"
+      },
+      {
+        id: "mummy-sleeping",
+        title: "Mummy Sleeping",
+        file: "Mummy Sleeping.m4a",
+        icon: "😴",
+        color: "purple",
+        duration: "2.9s"
+      }
+    ];
+
+    /**
+     * =========================================================================
+     * STATE MANAGEMENT & AUDIO ENGINE
+     * =========================================================================
+     */
+    const state = {
+      sounds: SOUNDS,
+      overlapMode: false, // false = Solo (stops others), true = Overlap
+      audioInstances: new Map(), // soundId -> HTMLAudioElement
+      loopingSounds: new Set(),  // set of soundIds set to loop
+      searchQuery: ""
+    };
+
+    // DOM Elements
+    const grid = document.getElementById("soundboard-grid");
+    const searchInput = document.getElementById("search-input");
+    const modeToggle = document.getElementById("mode-toggle");
+    const modeLabel = document.getElementById("mode-label");
+    const btnStopAll = document.getElementById("btn-stop-all");
+    const soundCountBadge = document.getElementById("sound-count-badge");
+    const toggleInfo = document.getElementById("toggle-info");
+    const infoDrawer = document.getElementById("info-drawer");
+
+    /**
+     * Preload and prepare audio instance for a sound
+     */
+    function getAudio(sound) {
+      if (!state.audioInstances.has(sound.id)) {
+        // Use encodeURI to safely handle filenames with spaces like "Henry Awake.m4a"
+        const audio = new Audio(encodeURI(sound.file));
+        audio.preload = "metadata";
+
+        // Listen for metadata to update duration if not already displayed
+        audio.addEventListener("loadedmetadata", () => {
+          if (!isNaN(audio.duration) && isFinite(audio.duration)) {
+            const formatted = audio.duration < 60
+              ? `${audio.duration.toFixed(1)}s`
+              : `${Math.floor(audio.duration / 60)}:${Math.floor(audio.duration % 60).toString().padStart(2, '0')}`;
+            const durEl = document.getElementById(`dur-${sound.id}`);
+            if (durEl) durEl.textContent = formatted;
+          }
+        });
+
+        // Time update for the bottom progress bar
+        audio.addEventListener("timeupdate", () => {
+          const card = document.getElementById(`card-${sound.id}`);
+          const bar = document.getElementById(`prog-${sound.id}`);
+          if (card && bar && audio.duration) {
+            const pct = (audio.currentTime / audio.duration) * 100;
+            bar.style.width = `${pct}%`;
+          }
+        });
+
+        // Playback ended
+        audio.addEventListener("ended", () => {
+          if (!state.loopingSounds.has(sound.id)) {
+            setCardPlayingState(sound.id, false);
+          }
+          updateStopAllButtonState();
+        });
+
+        // Playback error handling
+        audio.addEventListener("error", (e) => {
+          console.error(`Audio playback error for "${sound.title}":`, e);
+          setCardPlayingState(sound.id, false);
+          const durEl = document.getElementById(`dur-${sound.id}`);
+          if (durEl) durEl.textContent = "Error";
+        });
+
+        state.audioInstances.set(sound.id, audio);
+      }
+      return state.audioInstances.get(sound.id);
+    }
+
+    /**
+     * Play or toggle sound playback
+     */
+    function togglePlaySound(sound) {
+      const audio = getAudio(sound);
+
+      if (!audio.paused && audio.currentTime > 0) {
+        // If already playing, stop and reset
+        stopSound(sound.id);
+        return;
+      }
+
+      // If in Solo Mode, stop all other playing sounds first
+      if (!state.overlapMode) {
+        stopAllSounds();
+      }
+
+      // Configure loop state
+      audio.loop = state.loopingSounds.has(sound.id);
+      audio.currentTime = 0;
+
+      // Mobile Safari / Chrome play call
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setCardPlayingState(sound.id, true);
+            updateStopAllButtonState();
+          })
+          .catch((err) => {
+            console.warn("Audio play prevented or interrupted:", err);
+            setCardPlayingState(sound.id, false);
+          });
+      }
+    }
+
+    /**
+     * Stop a specific sound
+     */
+    function stopSound(soundId) {
+      const audio = state.audioInstances.get(soundId);
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+      setCardPlayingState(soundId, false);
+      updateStopAllButtonState();
+    }
+
+    /**
+     * Stop all playing sounds
+     */
+    function stopAllSounds() {
+      state.audioInstances.forEach((audio, id) => {
+        audio.pause();
+        audio.currentTime = 0;
+        setCardPlayingState(id, false);
+      });
+      updateStopAllButtonState();
+    }
+
+    /**
+     * Update card playing visual state
+     */
+    function setCardPlayingState(soundId, isPlaying) {
+      const card = document.getElementById(`card-${soundId}`);
+      const bar = document.getElementById(`prog-${soundId}`);
+      if (card) {
+        if (isPlaying) {
+          card.classList.add("is-playing");
+        } else {
+          card.classList.remove("is-playing");
+          if (bar) bar.style.width = "0%";
+        }
+      }
+    }
+
+    /**
+     * Toggle individual sound loop
+     */
+    function toggleLoop(soundId, event) {
+      if (event) event.stopPropagation();
+
+      const btnLoop = document.getElementById(`loop-${soundId}`);
+      const isLooping = state.loopingSounds.has(soundId);
+
+      if (isLooping) {
+        state.loopingSounds.delete(soundId);
+        if (btnLoop) btnLoop.classList.remove("is-looping");
+      } else {
+        state.loopingSounds.add(soundId);
+        if (btnLoop) btnLoop.classList.add("is-looping");
+      }
+
+      const audio = state.audioInstances.get(soundId);
+      if (audio) {
+        audio.loop = !isLooping;
+      }
+    }
+
+    /**
+     * Update state of master "Stop All" button
+     */
+    function updateStopAllButtonState() {
+      let isAnyPlaying = false;
+      state.audioInstances.forEach((audio) => {
+        if (!audio.paused && audio.currentTime > 0) {
+          isAnyPlaying = true;
+        }
+      });
+      btnStopAll.disabled = !isAnyPlaying;
+    }
+
+    /**
+     * Render the sound cards
+     */
+    function renderCards() {
+      const query = state.searchQuery.toLowerCase().trim();
+      const filtered = state.sounds.filter(s =>
+        s.title.toLowerCase().includes(query) ||
+        (s.category && s.category.toLowerCase().includes(query))
+      );
+
+      soundCountBadge.textContent = `${filtered.length} sound${filtered.length === 1 ? '' : 's'}`;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div style="font-size: 2rem;">🔍</div>
+            <p>No sound clips matched "<strong>${escapeHtml(query)}</strong>"</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map((sound, index) => {
+        const isLooping = state.loopingSounds.has(sound.id);
+        const shortcutNum = index < 9 ? index + 1 : null;
+
+        return `
+          <div
+            id="card-${sound.id}"
+            class="sound-card"
+            data-id="${sound.id}"
+            data-color="${sound.color || 'blue'}"
+            role="button"
+            tabindex="0"
+            aria-label="Play ${escapeHtml(sound.title)}"
+          >
+            <!-- Loop button -->
+            <button
+              id="loop-${sound.id}"
+              class="btn-card-loop ${isLooping ? 'is-looping' : ''}"
+              title="Toggle loop for this sound"
+              aria-label="Loop ${escapeHtml(sound.title)}"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="17 1 21 5 17 9"></polyline>
+                <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                <polyline points="7 23 3 19 7 15"></polyline>
+                <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+              </svg>
+            </button>
+
+            <!-- Sound wave equalizer animation -->
+            <div class="sound-waves">
+              <span class="wave-bar"></span>
+              <span class="wave-bar"></span>
+              <span class="wave-bar"></span>
+            </div>
+
+            <!-- Icon -->
+            <div class="card-icon-wrapper">
+              <span>${sound.icon || '🎵'}</span>
+            </div>
+
+            <!-- Title & Metadata -->
+            <div class="card-title">${escapeHtml(sound.title)}</div>
+            <div class="card-meta">
+              <span id="dur-${sound.id}" class="duration-badge">${sound.duration || '--'}</span>
+              ${shortcutNum ? `<span class="shortcut-badge">${shortcutNum}</span>` : ''}
+            </div>
+
+            <!-- Bottom Progress Bar -->
+            <div id="prog-${sound.id}" class="card-progress-bar"></div>
+          </div>
+        `;
+      }).join('');
+
+      // Attach event listeners to newly rendered cards
+      filtered.forEach(sound => {
+        const card = document.getElementById(`card-${sound.id}`);
+        const loopBtn = document.getElementById(`loop-${sound.id}`);
+
+        if (card) {
+          card.addEventListener("click", () => togglePlaySound(sound));
+          card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              togglePlaySound(sound);
+            }
+          });
+        }
+
+        if (loopBtn) {
+          loopBtn.addEventListener("click", (e) => toggleLoop(sound.id, e));
+        }
+
+        // Preload metadata
+        getAudio(sound);
+      });
+    }
+
+    /**
+     * Helpers
+     */
+    function escapeHtml(str) {
+      return (str || "").replace(/[&<>"']/g, m => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[m]));
+    }
+
+    // Toggle Playback Mode (Solo vs Overlap)
+    modeToggle.addEventListener("click", () => {
+      state.overlapMode = !state.overlapMode;
+      modeLabel.textContent = state.overlapMode ? "Overlap" : "Solo";
+      modeToggle.classList.toggle("active", state.overlapMode);
+    });
+
+    // Master Stop All
+    btnStopAll.addEventListener("click", stopAllSounds);
+
+    // Instant Search
+    searchInput.addEventListener("input", (e) => {
+      state.searchQuery = e.target.value;
+      renderCards();
+    });
+
+    // Toggle Info Drawer
+    toggleInfo.addEventListener("click", () => {
+      const isHidden = infoDrawer.style.display === "none";
+      infoDrawer.style.display = isHidden ? "block" : "none";
+    });
+
+    // Keyboard Shortcuts (Desktop / Tablets)
+    window.addEventListener("keydown", (e) => {
+      // Ignore if typing in the search box
+      if (document.activeElement === searchInput) {
+        if (e.key === "Escape") {
+          searchInput.blur();
+        }
+        return;
+      }
+
+      // Press '/' to search
+      if (e.key === "/") {
+        e.preventDefault();
+        searchInput.focus();
+        return;
+      }
+
+      // Spacebar stops all sounds
+      if (e.code === "Space") {
+        e.preventDefault();
+        stopAllSounds();
+        return;
+      }
+
+      // Numbers 1-9 trigger corresponding sounds
+      const num = parseInt(e.key, 10);
+      if (!isNaN(num) && num >= 1 && num <= 9) {
+        const query = state.searchQuery.toLowerCase().trim();
+        const filtered = state.sounds.filter(s =>
+          s.title.toLowerCase().includes(query) ||
+          (s.category && s.category.toLowerCase().includes(query))
+        );
+        const targetSound = filtered[num - 1];
+        if (targetSound) {
+          e.preventDefault();
+          togglePlaySound(targetSound);
+        }
+      }
+    });
+
+    // Initial render
+    renderCards();
+  </script>
+</body>
+</html>
