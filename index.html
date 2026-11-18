@@ -325,6 +325,16 @@
       --card-gradient: linear-gradient(135deg, rgba(244, 63, 94, 0.18), rgba(244, 63, 94, 0.04));
     }
 
+    .sound-card[data-color="amber"] {
+      --card-accent: #f59e0b;
+      --card-gradient: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(245, 158, 11, 0.04));
+    }
+
+    .sound-card[data-color="indigo"] {
+      --card-accent: #6366f1;
+      --card-gradient: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(99, 102, 241, 0.04));
+    }
+
     .sound-card {
       background: var(--card-gradient, var(--bg-card));
     }
@@ -555,7 +565,7 @@
           <div>
             <div style="display:flex; align-items:center; gap: 8px;">
               <h1 class="brand-title">Soundboard</h1>
-              <span id="sound-count-badge" class="brand-badge">2 sounds</span>
+              <span id="sound-count-badge" class="brand-badge">7 sounds</span>
             </div>
           </div>
         </div>
