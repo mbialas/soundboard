@@ -415,7 +415,130 @@
       font-size: 0.9rem;
     }
 
+    /* Video Indicator Badge */
+    .video-indicator-badge {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(244, 63, 94, 0.22);
+      color: #fb7185;
+      padding: 1px 5px;
+      border-radius: 4px;
+      border: 1px solid rgba(244, 63, 94, 0.35);
+    }
 
+    /* Video Player Modal Overlay */
+    .video-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      padding-top: max(16px, env(safe-area-inset-top));
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease-in-out;
+    }
+
+    .video-modal.is-active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .video-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .video-modal-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 540px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.92);
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .video-modal.is-active .video-modal-content {
+      transform: scale(1);
+    }
+
+    .video-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(11, 15, 25, 0.65);
+    }
+
+    .video-modal-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .video-modal-close {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .video-modal-close:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .video-modal-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      max-height: 70vh;
+      display: block;
+      object-fit: contain;
+      outline: none;
+    }
   </style>
 </head>
 <body>
@@ -434,7 +557,7 @@
           <div>
             <div style="display:flex; align-items:center; gap: 8px;">
               <h1 class="brand-title">Soundboard</h1>
-              <span id="sound-count-badge" class="brand-badge">7 sounds</span>
+              <span id="sound-count-badge" class="brand-badge">8 clips</span>
             </div>
           </div>
         </div>
@@ -446,7 +569,7 @@
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input type="text" id="search-input" class="search-input" placeholder="Search sounds... (Press '/' to focus)" autocomplete="off">
+        <input type="text" id="search-input" class="search-input" placeholder="Search sounds and videos... (Press '/' to focus)" autocomplete="off">
       </div>
     </div>
   </header>
@@ -457,6 +580,25 @@
       <!-- Cards dynamically rendered by JavaScript -->
     </div>
   </main>
+
+  <!-- Video Player Modal Overlay -->
+  <div id="video-modal" class="video-modal" style="display: none;" aria-hidden="true" role="dialog" aria-label="Video Player">
+    <div class="video-modal-backdrop" id="video-backdrop"></div>
+    <div class="video-modal-content">
+      <div class="video-modal-header">
+        <span id="video-modal-title" class="video-modal-title">Video</span>
+        <button id="video-modal-close" class="video-modal-close" aria-label="Close video">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="video-wrapper">
+        <video id="player-video" playsinline webkit-playsinline preload="auto"></video>
+      </div>
+    </div>
+  </div>
 
   <script>
     /**
@@ -527,6 +669,15 @@
         icon: "🐺",
         color: "indigo",
         duration: "4.4s"
+      },
+      {
+        id: "video-test",
+        title: "Video Test",
+        file: "Video Test.mp4",
+        type: "video",
+        icon: "🎬",
+        color: "rose",
+        duration: "3.4s"
       }
     ];
 
@@ -546,11 +697,29 @@
     const grid = document.getElementById("soundboard-grid");
     const searchInput = document.getElementById("search-input");
     const soundCountBadge = document.getElementById("sound-count-badge");
+    const videoModal = document.getElementById("video-modal");
+    const videoBackdrop = document.getElementById("video-backdrop");
+    const videoModalTitle = document.getElementById("video-modal-title");
+    const videoModalClose = document.getElementById("video-modal-close");
+    const playerVideo = document.getElementById("player-video");
+
+    let activeVideoSoundId = null;
 
     /**
-     * Preload and prepare audio instance for a sound
+     * Helper to detect if an item is a video clip
+     */
+    function isVideoItem(item) {
+      if (item.type === "video") return true;
+      const file = (item.file || "").toLowerCase();
+      return file.endsWith(".mp4") || file.endsWith(".webm") || file.endsWith(".mov");
+    }
+
+    /**
+     * Preload and prepare audio instance for an audio sound
      */
     function getAudio(sound) {
+      if (isVideoItem(sound)) return null;
+
       if (!state.audioInstances.has(sound.id)) {
         // Use encodeURI to safely handle filenames with spaces like "Henry Awake.m4a"
         const audio = new Audio(encodeURI(sound.file));
@@ -598,10 +767,19 @@
     }
 
     /**
-     * Play or toggle sound playback
+     * Play or toggle playback (handles both audio & video)
      */
     function togglePlaySound(sound) {
+      if (isVideoItem(sound)) {
+        togglePlayVideo(sound);
+        return;
+      }
+
+      // If an active video is playing, close it
+      closeVideoModal();
+
       const audio = getAudio(sound);
+      if (!audio) return;
 
       if (!audio.paused && audio.currentTime > 0) {
         // If already playing, stop and reset
@@ -631,9 +809,67 @@
     }
 
     /**
-     * Stop a specific sound
+     * Play or toggle video clip playback
+     */
+    function togglePlayVideo(sound) {
+      if (activeVideoSoundId === sound.id && !playerVideo.paused) {
+        closeVideoModal();
+        return;
+      }
+
+      // Stop any other playing sounds
+      stopAllSounds();
+
+      activeVideoSoundId = sound.id;
+      videoModalTitle.textContent = sound.title;
+      playerVideo.src = encodeURI(sound.file);
+      playerVideo.loop = state.loopingSounds.has(sound.id);
+      playerVideo.currentTime = 0;
+
+      videoModal.style.display = "flex";
+      requestAnimationFrame(() => {
+        videoModal.classList.add("is-active");
+      });
+
+      const playPromise = playerVideo.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setCardPlayingState(sound.id, true);
+          })
+          .catch((err) => {
+            console.warn("Video playback prevented or interrupted:", err);
+            setCardPlayingState(sound.id, false);
+          });
+      }
+    }
+
+    /**
+     * Close the video modal player
+     */
+    function closeVideoModal() {
+      if (activeVideoSoundId) {
+        setCardPlayingState(activeVideoSoundId, false);
+        activeVideoSoundId = null;
+      }
+      playerVideo.pause();
+      playerVideo.currentTime = 0;
+      videoModal.classList.remove("is-active");
+      setTimeout(() => {
+        if (!videoModal.classList.contains("is-active")) {
+          videoModal.style.display = "none";
+        }
+      }, 220);
+    }
+
+    /**
+     * Stop a specific item
      */
     function stopSound(soundId) {
+      if (activeVideoSoundId === soundId) {
+        closeVideoModal();
+        return;
+      }
       const audio = state.audioInstances.get(soundId);
       if (audio) {
         audio.pause();
@@ -643,9 +879,10 @@
     }
 
     /**
-     * Stop all playing sounds
+     * Stop all playing items (both audio and video)
      */
     function stopAllSounds() {
+      closeVideoModal();
       state.audioInstances.forEach((audio, id) => {
         audio.pause();
         audio.currentTime = 0;
@@ -670,7 +907,7 @@
     }
 
     /**
-     * Toggle individual sound loop
+     * Toggle individual item loop
      */
     function toggleLoop(soundId, event) {
       if (event) event.stopPropagation();
@@ -686,11 +923,54 @@
         if (btnLoop) btnLoop.classList.add("is-looping");
       }
 
+      if (activeVideoSoundId === soundId) {
+        playerVideo.loop = !isLooping;
+      }
+
       const audio = state.audioInstances.get(soundId);
       if (audio) {
         audio.loop = !isLooping;
       }
     }
+
+    // Video Player Event Listeners
+    playerVideo.addEventListener("ended", () => {
+      if (activeVideoSoundId && !state.loopingSounds.has(activeVideoSoundId)) {
+        closeVideoModal();
+      }
+    });
+
+    playerVideo.addEventListener("timeupdate", () => {
+      if (activeVideoSoundId && playerVideo.duration) {
+        const bar = document.getElementById(`prog-${activeVideoSoundId}`);
+        if (bar) {
+          const pct = (playerVideo.currentTime / playerVideo.duration) * 100;
+          bar.style.width = `${pct}%`;
+        }
+      }
+    });
+
+    playerVideo.addEventListener("loadedmetadata", () => {
+      if (activeVideoSoundId && !isNaN(playerVideo.duration)) {
+        const dur = playerVideo.duration < 60
+          ? `${playerVideo.duration.toFixed(1)}s`
+          : `${Math.floor(playerVideo.duration / 60)}:${Math.floor(playerVideo.duration % 60).toString().padStart(2, '0')}`;
+        const durEl = document.getElementById(`dur-${activeVideoSoundId}`);
+        if (durEl) durEl.textContent = dur;
+      }
+    });
+
+    playerVideo.addEventListener("error", (e) => {
+      console.error("Video error:", e);
+      if (activeVideoSoundId) {
+        const durEl = document.getElementById(`dur-${activeVideoSoundId}`);
+        if (durEl) durEl.textContent = "Error";
+      }
+      closeVideoModal();
+    });
+
+    videoBackdrop.addEventListener("click", closeVideoModal);
+    videoModalClose.addEventListener("click", closeVideoModal);
 
 
 
@@ -704,13 +984,13 @@
         (s.category && s.category.toLowerCase().includes(query))
       );
 
-      soundCountBadge.textContent = `${filtered.length} sound${filtered.length === 1 ? '' : 's'}`;
+      soundCountBadge.textContent = `${filtered.length} clip${filtered.length === 1 ? '' : 's'}`;
 
       if (filtered.length === 0) {
         grid.innerHTML = `
           <div class="empty-state">
             <div style="font-size: 2rem;">🔍</div>
-            <p>No sound clips matched "<strong>${escapeHtml(query)}</strong>"</p>
+            <p>No clips matched "<strong>${escapeHtml(query)}</strong>"</p>
           </div>
         `;
         return;
@@ -719,11 +999,12 @@
       grid.innerHTML = filtered.map((sound, index) => {
         const isLooping = state.loopingSounds.has(sound.id);
         const shortcutNum = index < 9 ? index + 1 : null;
+        const isVideo = isVideoItem(sound);
 
         return `
           <div
             id="card-${sound.id}"
-            class="sound-card"
+            class="sound-card ${isVideo ? 'is-video-card' : ''}"
             data-id="${sound.id}"
             data-color="${sound.color || 'blue'}"
             role="button"
@@ -734,7 +1015,7 @@
             <button
               id="loop-${sound.id}"
               class="btn-card-loop ${isLooping ? 'is-looping' : ''}"
-              title="Toggle loop for this sound"
+              title="Toggle loop"
               aria-label="Loop ${escapeHtml(sound.title)}"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -754,13 +1035,14 @@
 
             <!-- Icon -->
             <div class="card-icon-wrapper">
-              <span>${sound.icon || '🎵'}</span>
+              <span>${sound.icon || (isVideo ? '🎬' : '🎵')}</span>
             </div>
 
             <!-- Title & Metadata -->
             <div class="card-title">${escapeHtml(sound.title)}</div>
             <div class="card-meta">
               <span id="dur-${sound.id}" class="duration-badge">${sound.duration || '--'}</span>
+              ${isVideo ? '<span class="video-indicator-badge">VIDEO</span>' : ''}
               ${shortcutNum ? `<span class="shortcut-badge">${shortcutNum}</span>` : ''}
             </div>
 
@@ -789,8 +1071,10 @@
           loopBtn.addEventListener("click", (e) => toggleLoop(sound.id, e));
         }
 
-        // Preload metadata
-        getAudio(sound);
+        // Preload metadata for audio
+        if (!isVideoItem(sound)) {
+          getAudio(sound);
+        }
       });
     }
 
@@ -817,6 +1101,11 @@
 
     // Keyboard Shortcuts (Desktop / Tablets)
     window.addEventListener("keydown", (e) => {
+      // Escape closes video modal if open
+      if (e.key === "Escape") {
+        closeVideoModal();
+      }
+
       // Ignore if typing in the search box
       if (document.activeElement === searchInput) {
         if (e.key === "Escape") {
@@ -832,7 +1121,7 @@
         return;
       }
 
-      // Spacebar stops all sounds
+      // Spacebar stops all sounds / videos
       if (e.code === "Space") {
         e.preventDefault();
         stopAllSounds();
